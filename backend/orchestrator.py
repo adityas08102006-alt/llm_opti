@@ -1,3 +1,4 @@
+import ast
 import asyncio
 import time
 import copy
@@ -89,7 +90,7 @@ class Orchestrator:
             "docs": "qwen2.5-1.5b-instruct-q4_k_m.gguf",
             "tests": "qwen2.5-coder-7b-instruct-q4_k_m.gguf",
         }
-        self.max_retries = 2
+        self.max_retries = 3
         self._cache = ResultCache()
 
     async def execute(self, prompt: str, demo_mode: str = "live") -> dict:
@@ -242,23 +243,62 @@ class Orchestrator:
                 test_output = test_blocks[0] if test_blocks else r["output"]
 
         if code_output and test_output:
-            sandbox_result = run_sandboxed(code_output, test_output)
-            retries = 0
-            while not sandbox_result["passed"] and retries < self.max_retries:
-                if sandbox_result.get("failure_kind") == "resource_limit_exceeded":
-                    break
-                regeneration_attempts += 1
-                retries += 1
+            sandbox_result = await self._run_sandbox_with_retry(code_output, test_output)
+            regeneration_attempts = sandbox_result.get("_retries", 0)
+
+        total_duration = (time.monotonic() - start_total) * 1000
+        merged = self._merge_results(results, sandbox_result)
+        return {
+            "prompt": prompt,
+            "dag_shape": shape,
+            "subtasks": results,
+            "sandbox": sandbox_result,
+            "regeneration_attempts": regeneration_attempts,
+            "fully_verified": sandbox_result["passed"] if sandbox_result else False,
+            "total_duration_ms": total_duration,
+            "merged_output": merged,
+            "demo_mode": "live",
+        }
+
+    def _validate_code_ast(self, code: str) -> str | None:
+        try:
+            ast.parse(code)
+            return None
+        except SyntaxError as e:
+            return f"SyntaxError at line {e.lineno}: {e.msg}"
+
+    async def _run_sandbox_with_retry(self, code_output: str, test_output: str) -> dict:
+        sandbox_result = run_sandboxed(code_output, test_output)
+        retries = 0
+        while not sandbox_result["passed"] and retries < self.max_retries:
+            if sandbox_result.get("failure_kind") == "resource_limit_exceeded":
+                break
+            retries += 1
+
+            syntax_error = self._validate_code_ast(code_output)
+
+            if syntax_error:
+                regen_prompt = (
+                    "The Python code below has a syntax error. Fix ONLY the syntax error "
+                    "and return the complete corrected code.\n\n"
+                    f"Error:\n{syntax_error}\n\n"
+                    f"Code:\n{code_output}"
+                )
+            else:
                 regen_prompt = (
                     "The code below failed its tests. Fix the code. "
                     "Return only the corrected Python code:\n\n"
                     f"Error:\n{sandbox_result['stderr'][:1000]}\n\n"
                     f"Code:\n{code_output}"
                 )
-                regen_result = await llama_generate(self.ports["code"], regen_prompt, n_predict=512)
-                code_blocks = extract_code_blocks(regen_result["output"])
-                code_output = code_blocks[0] if code_blocks else regen_result["output"]
-                sandbox_result = run_sandboxed(code_output, test_output)
+
+            regen_result = await llama_generate(self.ports["code"], regen_prompt, n_predict=2048)
+            code_blocks = extract_code_blocks(regen_result["output"])
+            code_output = code_blocks[0] if code_blocks else regen_result["output"]
+            sandbox_result = run_sandboxed(code_output, test_output)
+
+        sandbox_result["_retries"] = retries
+        return sandbox_result
 
         total_duration = (time.monotonic() - start_total) * 1000
         merged = self._merge_results(results, sandbox_result)
@@ -284,8 +324,19 @@ class Orchestrator:
             return self.ports["tests"]
         return self.ports["code"]
 
+    def _predict_n(self, prompt: str, name: str) -> int:
+        ln = (prompt + " " + name).lower()
+        complex_kw = ["game", "flappy", "gui", "api", "endpoint", "class", "database", "server", "client",
+                       "scraper", "parser", "visualization", "dashboard", "complex", "large"]
+        if any(w in ln for w in complex_kw):
+            return 2048
+        if any(w in ln for w in ["function", "method", "script"]):
+            return 1024
+        return 512
+
     async def _run_node(self, nid, node, prompt_text, port):
         start = time.monotonic()
+        n_predict = self._predict_n(node.get("prompt_template", ""), node["name"])
         name_lower = node["name"].lower()
         if "test" in name_lower:
             system = "You are a test generation assistant. Output ONLY valid Python unittest code inside a ```python markdown block. No explanation, no extra text."
@@ -293,7 +344,7 @@ class Orchestrator:
             system = "You are a documentation assistant. Output documentation in the requested format."
         else:
             system = "You are a code generation assistant. Output ONLY valid Python code inside a ```python markdown block. No explanation, no extra text."
-        result = await llama_generate(port, prompt_text, system=system)
+        result = await llama_generate(port, prompt_text, system=system, n_predict=n_predict)
         elapsed = time.monotonic() - start
         name_lower = node["name"].lower()
         core = self.core_ranges.get(

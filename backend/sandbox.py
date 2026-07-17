@@ -3,9 +3,9 @@ import subprocess
 import time
 import os
 
-SANDBOX_RLIMIT_AS = 512 * 1024 * 1024
-SANDBOX_CPU_TIME = 5
-SANDBOX_WALL_TIME = 10
+SANDBOX_RLIMIT_AS = 256 * 1024 * 1024
+SANDBOX_CPU_TIME = 10
+SANDBOX_WALL_TIME = 20
 SANDBOX_USER = "sandboxuser"
 
 
