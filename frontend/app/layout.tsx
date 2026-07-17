@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import './globals.css'
 import ClientShell from './client-shell'
 
@@ -10,8 +11,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="h-full">
-      <body className="h-full">
-        <ClientShell>{children}</ClientShell>
+      <body className="h-full" suppressHydrationWarning>
+        <Suspense fallback={<div className="flex h-full items-center justify-center text-surface-400">Loading…</div>}>
+          <ClientShell>{children}</ClientShell>
+        </Suspense>
       </body>
     </html>
   )
