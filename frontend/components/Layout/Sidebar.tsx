@@ -29,6 +29,7 @@ export default function Sidebar() {
             <Link
               key={l.href}
               href={l.href}
+              prefetch={false}
               className={`flex items-center gap-3 px-5 py-2.5 text-sm transition-colors ${
                 active
                   ? 'bg-accent-500/10 text-accent-400 border-r-2 border-accent-500'
