@@ -58,7 +58,7 @@ export default function DashboardPage() {
         <textarea
           className="w-full bg-surface-900 border border-surface-700 rounded p-3 text-sm text-surface-200 placeholder-surface-600 resize-none focus:outline-none focus:border-accent-500"
           rows={3}
-          placeholder="Describe the task…&#10;&#10;Example: Write a Python function for fibonacci with unit tests"
+          placeholder={"Describe the task…\n\nExample: Write a Python function for fibonacci with unit tests"}
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
         />

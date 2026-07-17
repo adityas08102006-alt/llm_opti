@@ -1,4 +1,4 @@
-const BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:9000'
+const BASE = process.env.NEXT_PUBLIC_API_URL || '/api'
 const KEY = process.env.NEXT_PUBLIC_API_KEY || ''
 
 interface FetchOptions extends RequestInit {
