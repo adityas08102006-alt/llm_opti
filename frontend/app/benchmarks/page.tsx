@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef, useEffect, useState } from 'react'
+import type { Chart } from 'chart.js'
 import { useLiveMetrics } from '@/hooks/useLiveMetrics'
 import StatCard from '@/components/ui/StatCard'
 import Spinner from '@/components/ui/Spinner'
