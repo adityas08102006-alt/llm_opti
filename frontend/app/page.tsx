@@ -85,11 +85,11 @@ export default function DashboardPage() {
             <StatCard label="Subtasks" value={result.subtasks.length} />
             <StatCard
               label="Sandbox"
-              value={result.sandbox?.passed ? 'PASS' : 'FAIL'}
-              color={result.sandbox?.passed ? 'success' : 'danger'}
+              value={result.sandbox === null ? 'N/A' : result.sandbox.passed ? 'PASS' : 'FAIL'}
+              color={result.sandbox === null ? 'default' : result.sandbox.passed ? 'success' : 'danger'}
             />
             <StatCard label="Regenerations" value={result.regeneration_attempts} />
-            <StatCard label="Verified" value={result.fully_verified ? 'YES' : 'NO'} color={result.fully_verified ? 'success' : 'warning'} />
+            <StatCard label="Verified" value={result.sandbox === null ? 'N/A' : result.fully_verified ? 'YES' : 'NO'} color={result.sandbox === null ? 'default' : result.fully_verified ? 'success' : 'warning'} />
           </div>
           {result.cached && (
             <div className="flex items-center gap-2 text-warning text-sm">
