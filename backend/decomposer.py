@@ -3,8 +3,8 @@ from typing import Optional, List
 
 
 def classify_dag_shape(prompt: str) -> str:
-    has_code = any(w in prompt.lower() for w in ["api", "endpoint", "function", "class", "method", "route", "handler", "code"])
-    has_docs = any(w in prompt.lower() for w in ["doc", "documentation", "readme", "comment"])
+    has_code = any(w in prompt.lower() for w in ["api", "endpoint", "function", "class", "method", "route", "handler", "code", "program", "implement", "algorithm", "sort", "calculate", "compute", "script"])
+    has_docs = any(w in prompt.lower() for w in ["doc", "documentation", "readme", "comment", "docstring"])
     has_tests = any(w in prompt.lower() for w in ["test", "unittest", "pytest", "spec"])
     is_sequential = any(w in prompt.lower() for w in ["sequential", "step by step", "linear"])
     parts = []
@@ -71,8 +71,8 @@ def extract_code_blocks(text: str) -> List[str]:
 
 
 def _has_keywords(prompt: str) -> tuple:
-    has_code = any(w in prompt.lower() for w in ["api", "endpoint", "function", "class", "method", "route", "handler", "code"])
-    has_docs = any(w in prompt.lower() for w in ["doc", "documentation", "readme", "comment"])
+    has_code = any(w in prompt.lower() for w in ["api", "endpoint", "function", "class", "method", "route", "handler", "code", "program", "implement", "algorithm", "sort", "calculate", "compute", "script"])
+    has_docs = any(w in prompt.lower() for w in ["doc", "documentation", "readme", "comment", "docstring"])
     has_tests = any(w in prompt.lower() for w in ["test", "unittest", "pytest", "spec"])
     return has_code, has_docs, has_tests
 
