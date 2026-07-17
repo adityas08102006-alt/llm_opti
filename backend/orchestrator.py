@@ -292,7 +292,7 @@ class Orchestrator:
                     f"Code:\n{code_output}"
                 )
 
-            regen_result = await llama_generate(self.ports["code"], regen_prompt, n_predict=2048)
+            regen_result = await llama_generate(self.ports["code"], regen_prompt, n_predict=1024, timeout_secs=240)
             code_blocks = extract_code_blocks(regen_result["output"])
             code_output = code_blocks[0] if code_blocks else regen_result["output"]
             sandbox_result = run_sandboxed(code_output, test_output)
@@ -324,19 +324,19 @@ class Orchestrator:
             return self.ports["tests"]
         return self.ports["code"]
 
-    def _predict_n(self, prompt: str, name: str) -> int:
+    def _predict_n(self, prompt: str, name: str) -> tuple[int, int]:
         ln = (prompt + " " + name).lower()
         complex_kw = ["game", "flappy", "gui", "api", "endpoint", "class", "database", "server", "client",
                        "scraper", "parser", "visualization", "dashboard", "complex", "large"]
         if any(w in ln for w in complex_kw):
-            return 2048
+            return 1024, 240
         if any(w in ln for w in ["function", "method", "script"]):
-            return 1024
-        return 512
+            return 768, 180
+        return 512, 120
 
     async def _run_node(self, nid, node, prompt_text, port):
         start = time.monotonic()
-        n_predict = self._predict_n(node.get("prompt_template", ""), node["name"])
+        n_predict, timeout = self._predict_n(node.get("prompt_template", ""), node["name"])
         name_lower = node["name"].lower()
         if "test" in name_lower:
             system = "You are a test generation assistant. Output ONLY valid Python unittest code inside a ```python markdown block. No explanation, no extra text."
@@ -344,7 +344,7 @@ class Orchestrator:
             system = "You are a documentation assistant. Output documentation in the requested format."
         else:
             system = "You are a code generation assistant. Output ONLY valid Python code inside a ```python markdown block. No explanation, no extra text."
-        result = await llama_generate(port, prompt_text, system=system, n_predict=n_predict)
+        result = await llama_generate(port, prompt_text, system=system, n_predict=n_predict, timeout_secs=timeout)
         elapsed = time.monotonic() - start
         name_lower = node["name"].lower()
         core = self.core_ranges.get(
