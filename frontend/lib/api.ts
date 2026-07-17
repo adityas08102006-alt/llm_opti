@@ -1,5 +1,14 @@
-const BASE = process.env.NEXT_PUBLIC_API_URL || '/api'
 const KEY = process.env.NEXT_PUBLIC_API_KEY || ''
+
+// Use the Vercel proxy path (/api) on HTTPS pages to avoid mixed content.
+// Override with NEXT_PUBLIC_API_URL for local dev (e.g. http://localhost:9000).
+const BASE = (() => {
+  const base = process.env.NEXT_PUBLIC_API_URL || '/api'
+  if (typeof window !== 'undefined' && window.location.protocol === 'https:' && base.startsWith('http://')) {
+    return '/api'
+  }
+  return base
+})()
 
 interface FetchOptions extends RequestInit {
   params?: Record<string, string>
