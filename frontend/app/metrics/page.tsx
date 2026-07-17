@@ -10,7 +10,7 @@ export default function MetricsPage() {
   const { stats, version, error } = useLiveMetrics(2000)
   const cpuCanvasRef = useRef<HTMLCanvasElement>(null)
   const [cpuHistory] = useState<number[][]>([])
-  const [cpuChart, setCpuChart] = useState<any>(null)
+  const cpuChartRef = useRef<any>(null)
 
   useEffect(() => {
     if (!stats?.cpu_percent) return
@@ -19,7 +19,8 @@ export default function MetricsPage() {
   }, [stats])
 
   useEffect(() => {
-    if (!cpuCanvasRef.current || typeof window === 'undefined') return
+    const canvas = cpuCanvasRef.current
+    if (!canvas || typeof window === 'undefined') return
     let destroyed = false
     const init = async () => {
       const { Chart: C, registerables } = await import('chart.js')
@@ -36,7 +37,7 @@ export default function MetricsPage() {
         pointRadius: 0,
         borderWidth: 1,
       }))
-      const inst = new C(cpuCanvasRef.current, {
+      const inst = new C(canvas, {
         type: 'line',
         data: { labels: [], datasets },
         options: {
@@ -52,20 +53,21 @@ export default function MetricsPage() {
           },
         },
       })
-      if (!destroyed) setCpuChart(inst)
+      if (!destroyed) { cpuChartRef.current = inst }
     }
     init()
-    return () => { destroyed = true; cpuChart?.destroy() }
+    return () => { destroyed = true; cpuChartRef.current?.destroy() }
   }, [])
 
   useEffect(() => {
-    if (!cpuChart || cpuHistory.length === 0) return
+    const c = cpuChartRef.current
+    if (!c || cpuHistory.length === 0) return
     const labels = cpuHistory.map(() => '')
-    cpuChart.data.labels = labels
+    c.data.labels = labels
     for (let i = 0; i < 8; i++) {
-      cpuChart.data.datasets[i].data = cpuHistory.map(h => h[i] ?? 0)
+      c.data.datasets[i].data = cpuHistory.map(h => h[i] ?? 0)
     }
-    cpuChart.update('none')
+    c.update('none')
   }, [cpuHistory])
 
   if (error && !stats) {

@@ -9,7 +9,7 @@ import Spinner from '@/components/ui/Spinner'
 export default function BenchmarksPage() {
   const { stats, error } = useLiveMetrics(3000)
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const [chart, setChart] = useState<Chart | null>(null)
+  const chartRef = useRef<Chart | null>(null)
   const [history] = useState<{ ts: number; pp1: number; tg1: number; pp2: number; tg2: number }[]>([])
 
   useEffect(() => {
@@ -26,14 +26,15 @@ export default function BenchmarksPage() {
   }, [stats])
 
   useEffect(() => {
-    if (!canvasRef.current || typeof window === 'undefined') return
+    const canvas = canvasRef.current
+    if (!canvas || typeof window === 'undefined') return
     let destroyed = false
     const initChart = async () => {
       const { Chart: ChartClass, registerables } = await import('chart.js')
       ChartClass.register(...registerables)
       if (destroyed) return
       const labels = history.map(() => '')
-      const inst = new ChartClass(canvasRef.current!, {
+      const inst = new ChartClass(canvas, {
         type: 'line',
         data: {
           labels,
@@ -56,19 +57,20 @@ export default function BenchmarksPage() {
           },
         },
       })
-      if (!destroyed) setChart(inst)
+      if (!destroyed) { chartRef.current = inst }
     }
     initChart()
-    return () => { destroyed = true; chart?.destroy() }
+    return () => { destroyed = true; chartRef.current?.destroy() }
   }, [])
 
   useEffect(() => {
-    if (!chart) return
-    chart.data.labels = history.map(() => '')
-    chart.data.datasets[0].data = history.map(h => h.tg1)
-    chart.data.datasets[1].data = history.map(h => h.tg2)
-    chart.data.datasets[2].data = history.map(h => h.pp1)
-    chart.update('none')
+    const c = chartRef.current
+    if (!c) return
+    c.data.labels = history.map(() => '')
+    c.data.datasets[0].data = history.map(h => h.tg1)
+    c.data.datasets[1].data = history.map(h => h.tg2)
+    c.data.datasets[2].data = history.map(h => h.pp1)
+    c.update('none')
   }, [history])
 
   if (error && !stats) {
