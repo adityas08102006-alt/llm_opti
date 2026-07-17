@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Parallel Task Decomposition Engine</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; }
+.container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+h1 { font-size: 1.5rem; color: #f8fafc; }
+.badge { padding: 4px 12px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+.badge-live { background: #22c55e; color: #052e16; }
+.badge-golden { background: #f59e0b; color: #451a03; }
+.prompt-area { background: #1e293b; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
+textarea { width: 100%; min-height: 80px; background: #0f172a; border: 1px solid #334155; border-radius: 4px; color: #e2e8f0; padding: 12px; font-size: 0.9rem; margin-bottom: 12px; resize: vertical; }
+button { background: #3b82f6; color: white; border: none; padding: 10px 24px; border-radius: 4px; cursor: pointer; font-size: 0.9rem; }
+button:disabled { background: #475569; cursor: not-allowed; }
+button:hover:not(:disabled) { background: #2563eb; }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 20px; }
+.stat-card { background: #1e293b; border-radius: 8px; padding: 16px; text-align: center; }
+.stat-card .label { font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; }
+.stat-card .value { font-size: 1.5rem; font-weight: 700; color: #f8fafc; margin-top: 4px; }
+.chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+.chart-card { background: #1e293b; border-radius: 8px; padding: 16px; }
+.chart-card h3 { font-size: 0.85rem; color: #94a3b8; margin-bottom: 12px; }
+.results-area { background: #1e293b; border-radius: 8px; padding: 20px; margin-bottom: 20px; display: none; }
+.results-area .subtask { border-left: 3px solid #3b82f6; padding-left: 12px; margin-bottom: 16px; }
+.results-area .subtask h3 { color: #60a5fa; font-size: 0.9rem; }
+.results-area .subtask pre { background: #0f172a; padding: 12px; border-radius: 4px; overflow-x: auto; font-size: 0.8rem; margin-top: 8px; }
+.sandbox-pass { color: #22c55e; font-weight: 600; }
+.sandbox-fail { color: #ef4444; font-weight: 600; }
+.loading { display: none; text-align: center; padding: 40px; }
+.spinner { border: 3px solid #334155; border-top: 3px solid #3b82f6; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 12px; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.status-bar { display: flex; gap: 16px; align-items: center; margin-top: 8px; }
+.live-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+.cpu-bar { background: #0f172a; border-radius: 4px; margin: 2px 0; height: 20px; overflow: hidden; }
+.cpu-bar-fill { height: 100%; background: #3b82f6; border-radius: 4px; transition: width 1s; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Parallel Task Decomposition Engine</h1>
+    <div>
+      <span class="badge badge-live" id="modeBadge">LIVE</span>
+    </div>
+  </header>
+
+  <div class="live-metrics">
+    <div class="stat-card">
+      <div class="label">CPU Cores</div>
+      <div class="value" id="cpuDisplay" style="font-size:1rem;">-</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Model Port 8001 (7B)</div>
+      <div class="value" id="model8001" style="font-size:0.9rem;">-</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Model Port 8002 (1.5B)</div>
+      <div class="value" id="model8002" style="font-size:0.9rem;">-</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Total Requests</div>
+      <div class="value" id="totalRequests">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">KleidiAI</div>
+      <div class="value" id="kleidiaiStatus" style="font-size:0.9rem;">checking...</div>
+    </div>
+  </div>
+
+  <div class="prompt-area">
+    <textarea id="promptInput" placeholder="Enter your task description...&#10;&#10;Example: Build a REST API endpoint that returns a user's profile by ID. Include documentation and unit tests.">Build a REST API endpoint that returns a user's profile by ID. Include documentation and unit tests.</textarea>
+    <div class="status-bar">
+      <button id="submitBtn" onclick="execute()">Execute</button>
+      <span id="statusText" style="color: #94a3b8; font-size: 0.85rem;"></span>
+    </div>
+  </div>
+
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <p>Executing task decomposition...</p>
+  </div>
+
+  <div class="stats-grid" id="statsGrid" style="display:none;">
+    <div class="stat-card"><div class="label">DAG Shape</div><div class="value" id="dagShape">-</div></div>
+    <div class="stat-card"><div class="label">Total Duration</div><div class="value" id="totalDuration">-</div></div>
+    <div class="stat-card"><div class="label">Subtasks</div><div class="value" id="subtaskCount">-</div></div>
+    <div class="stat-card"><div class="label">Sandbox</div><div class="value" id="sandboxStatus">-</div></div>
+    <div class="stat-card"><div class="label">Regenerations</div><div class="value" id="regenCount">-</div></div>
+    <div class="stat-card"><div class="label">Verified</div><div class="value" id="verifiedStatus">-</div></div>
+    <div class="stat-card" id="cachedCard" style="display:none;"><div class="label">Cache</div><div class="value" id="cachedStatus" style="color:#f59e0b;">CACHED</div></div>
+  </div>
+
+  <div class="chart-grid" id="chartGrid" style="display:none;">
+    <div class="chart-card">
+      <h3>Per-Subtask Latency (ms)</h3>
+      <canvas id="latencyChart"></canvas>
+    </div>
+    <div class="chart-card">
+      <h3>Tokens per Second</h3>
+      <canvas id="tpsChart"></canvas>
+    </div>
+  </div>
+
+  <div class="results-area" id="resultsArea"></div>
+</div>
+
+<script>
+let latencyChart = null;
+let tpsChart = null;
+
+function updateLiveMetrics() {
+  fetch('/stats')
+    .then(r => r.json())
+    .then(data => {
+      if (data.cpu_percent && data.cpu_percent.length > 0) {
+        let bars = data.cpu_percent.map((p, i) =>
+          `<div class="cpu-bar"><div class="cpu-bar-fill" style="width:${p}%"></div></div><small style="color:#94a3b8;">Core ${i}: ${p.toFixed(0)}%</small>`
+        ).join('');
+        document.getElementById('cpuDisplay').innerHTML = bars;
+      }
+      if (data.llama_metrics) {
+        for (let port of [8001, 8002]) {
+          const m = data.llama_metrics[port] || {};
+          const pp = m['llamacpp:prompt_tokens_seconds'];
+          const tg = m['llamacpp:predicted_tokens_seconds'];
+          const el = document.getElementById('model' + port);
+          if (pp && tg) {
+            el.textContent = `pp: ${(1/pp).toFixed(1)} t/s | tg: ${(1/tg).toFixed(1)} t/s`;
+          } else if (pp) {
+            el.textContent = `pp: ${(1/pp).toFixed(1)} t/s`;
+          } else {
+            el.textContent = 'idle';
+          }
+        }
+      }
+      document.getElementById('totalRequests').textContent = data.total_requests || 0;
+    })
+    .catch(() => {});
+}
+
+setInterval(updateLiveMetrics, 3000);
+updateLiveMetrics();
+
+function updateArmVerify() {
+  fetch('/system/arm-verify')
+    .then(r => r.json())
+    .then(data => {
+      const el = document.getElementById('kleidiaiStatus');
+      if (data.status === 'pass') {
+        el.textContent = 'ON (armv8.4-a+I8MM)';
+        el.style.color = '#22c55e';
+      } else if (data.kleidiai_build) {
+        el.textContent = 'build ON, some CPU features missing';
+        el.style.color = '#f59e0b';
+      } else {
+        el.textContent = 'NOT BUILD';
+        el.style.color = '#ef4444';
+      }
+    })
+    .catch(() => {
+      document.getElementById('kleidiaiStatus').textContent = 'unavailable';
+    });
+}
+
+updateArmVerify();
+
+async function execute() {
+  const btn = document.getElementById('submitBtn');
+  const prompt = document.getElementById('promptInput').value.trim();
+  if (!prompt) return;
+
+  btn.disabled = true;
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('statsGrid').style.display = 'none';
+  document.getElementById('chartGrid').style.display = 'none';
+  document.getElementById('resultsArea').style.display = 'none';
+  document.getElementById('statusText').textContent = 'Sending request...';
+
+  try {
+    const resp = await fetch('/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt, demo_mode: 'live' }),
+    });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const data = await resp.json();
+    displayResults(data);
+  } catch (err) {
+    document.getElementById('statusText').textContent = 'Error: ' + err.message;
+  } finally {
+    btn.disabled = false;
+    document.getElementById('loading').style.display = 'none';
+  }
+}
+
+function displayResults(data) {
+  document.getElementById('statusText').textContent = 'Complete';
+  document.getElementById('dagShape').textContent = data.dag_shape || 'N/A';
+  document.getElementById('totalDuration').textContent = (data.total_duration_ms / 1000).toFixed(1) + 's';
+  document.getElementById('subtaskCount').textContent = (data.subtasks || []).length;
+  document.getElementById('regenCount').textContent = data.regeneration_attempts || 0;
+
+  const sb = data.sandbox;
+  if (sb) {
+    document.getElementById('sandboxStatus').textContent = sb.passed ? 'PASS' : 'FAIL';
+    document.getElementById('sandboxStatus').className = sb.passed ? 'value sandbox-pass' : 'value sandbox-fail';
+    document.getElementById('verifiedStatus').textContent = data.fully_verified ? 'YES' : 'NO';
+  } else {
+    document.getElementById('sandboxStatus').textContent = 'N/A';
+    document.getElementById('verifiedStatus').textContent = 'N/A';
+  }
+
+  if (data.cached) {
+    document.getElementById('cachedCard').style.display = 'block';
+  }
+  document.getElementById('statsGrid').style.display = 'grid';
+  document.getElementById('chartGrid').style.display = 'grid';
+
+  const subtasks = data.subtasks || [];
+  const labels = subtasks.map(s => s.name);
+  const latencies = subtasks.map(s => s.total_duration_ms || 0);
+  const tps = subtasks.map(s => s.tokens_per_second || 0);
+
+  if (latencyChart) latencyChart.destroy();
+  if (tpsChart) tpsChart.destroy();
+
+  const ctx1 = document.getElementById('latencyChart').getContext('2d');
+  latencyChart = new Chart(ctx1, {
+    type: 'bar',
+    data: { labels, datasets: [{ label: 'Latency (ms)', data: latencies, backgroundColor: '#3b82f6' }] },
+    options: { responsive: true, plugins: { legend: { labels: { color: '#94a3b8' } } }, scales: { y: { ticks: { color: '#94a3b8' } }, x: { ticks: { color: '#94a3b8' } } } }
+  });
+
+  const ctx2 = document.getElementById('tpsChart').getContext('2d');
+  tpsChart = new Chart(ctx2, {
+    type: 'bar',
+    data: { labels, datasets: [{ label: 'Tokens/sec', data: tps, backgroundColor: '#22c55e' }] },
+    options: { responsive: true, plugins: { legend: { labels: { color: '#94a3b8' } } }, scales: { y: { ticks: { color: '#94a3b8' } }, x: { ticks: { color: '#94a3b8' } } } }
+  });
+
+  const area = document.getElementById('resultsArea');
+  area.style.display = 'block';
+  let html = '<h2 style="margin-bottom:16px;">Results</h2>';
+  for (const s of subtasks) {
+    html += '<div class="subtask"><h3>' + s.name + '</h3>';
+    html += '<p style="color:#94a3b8;font-size:0.8rem;">' + (s.total_duration_ms/1000).toFixed(1) + 's | ' + s.tokens_per_second.toFixed(1) + ' t/s | Core ' + s.core + '</p>';
+    html += '<pre>' + escapeHtml(s.output || '(empty)') + '</pre></div>';
+  }
+  if (sb) {
+    const status = sb.passed ? 'PASSED' : 'FAILED';
+    const color = sb.passed ? 'sandbox-pass' : 'sandbox-fail';
+    html += '<div class="subtask"><h3>Sandbox Execution: <span class="' + color + '">' + status + '</span></h3>';
+    if (sb.stderr) html += '<pre style="border-left-color:#ef4444;">' + escapeHtml(sb.stderr) + '</pre>';
+    html += '</div>';
+  }
+  html += '<div class="subtask"><h3>Merged Output</h3><pre>' + escapeHtml(data.merged_output || '') + '</pre></div>';
+  area.innerHTML = html;
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+</script>
+</body>
+</html>

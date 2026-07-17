@@ -1,0 +1,233 @@
+{
+  "quant": "Q5_K_M",
+  "results": [
+    {
+      "tier": "easy",
+      "prompt": "Write a Python function to calculate the factorial of a number.",
+      "code_length": 93,
+      "test_length": 668,
+      "code_duration_ms": 7592.683418995875,
+      "sandbox_passed": true,
+      "sandbox_failure_kind": null,
+      "sandbox_stderr": "......\n----------------------------------------------------------------------\nRan 6 tests in 0.000s\n\nOK\n"
+    },
+    {
+      "tier": "easy",
+      "prompt": "Write a Python function that checks if a string is a palindrome.",
+      "code_length": 45,
+      "test_length": 494,
+      "code_duration_ms": 4022.789272996306,
+      "sandbox_passed": true,
+      "sandbox_failure_kind": null,
+      "sandbox_stderr": "....\n----------------------------------------------------------------------\nRan 4 tests in 0.000s\n\nOK\n"
+    },
+    {
+      "tier": "easy",
+      "prompt": "Write a Python function that returns the sum of a list of numbers.",
+      "code_length": 52,
+      "test_length": 472,
+      "code_duration_ms": 3484.7969059992465,
+      "sandbox_passed": true,
+      "sandbox_failure_kind": null,
+      "sandbox_stderr": ".\n----------------------------------------------------------------------\nRan 1 test in 0.000s\n\nOK\n"
+    },
+    {
+      "tier": "easy",
+      "prompt": "Write a Python function that converts Celsius to Fahrenheit.",
+      "code_length": 67,
+      "test_length": 454,
+      "code_duration_ms": 5765.9120579992305,
+      "sandbox_passed": true,
+      "sandbox_failure_kind": null,
+      "sandbox_stderr": ".\n----------------------------------------------------------------------\nRan 1 test in 0.000s\n\nOK\n"
+    },
+    {
+      "tier": "easy",
+      "prompt": "Write a Python function that counts vowels in a string.",
+      "code_length": 96,
+      "test_length": 741,
+      "code_duration_ms": 6956.961369003693,
+      "sandbox_passed": true,
+      "sandbox_failure_kind": null,
+      "sandbox_stderr": "......\n----------------------------------------------------------------------\nRan 6 tests in 0.000s\n\nOK\n"
+    },
+    {
+      "tier": "easy",
+      "prompt": "Write a Python function to find the maximum of three numbers.",
+      "code_length": 50,
+      "test_length": 457,
+      "code_duration_ms": 4612.09882300318,
+      "sandbox_passed": true,
+      "sandbox_failure_kind": null,
+      "sandbox_stderr": ".\n----------------------------------------------------------------------\nRan 1 test in 0.000s\n\nOK\n"
+    },
+    {
+      "tier": "easy",
+      "prompt": "Write a Python function that reverses a string.",
+      "code_length": 41,
+      "test_length": 406,
+      "code_duration_ms": 3265.8656850035186,
+      "sandbox_passed": true,
+      "sandbox_failure_kind": null,
+      "sandbox_stderr": ".\n----------------------------------------------------------------------\nRan 1 test in 0.000s\n\nOK\n"
+    },
+    {
+      "tier": "medium",
+      "prompt": "Write a Python function that merges two sorted lists into one sorted list.",
+      "code_length": 464,
+      "test_length": 989,
+      "code_duration_ms": 24744.773876002,
+      "sandbox_passed": true,
+      "sandbox_failure_kind": null,
+      "sandbox_stderr": ".\n----------------------------------------------------------------------\nRan 1 test in 0.000s\n\nOK\n"
+    },
+    {
+      "tier": "medium",
+      "prompt": "Write a Python class representing a BankAccount with deposit, withdraw, and balance methods.",
+      "code_length": 612,
+      "test_length": 1178,
+      "code_duration_ms": 22362.087465000513,
+      "sandbox_passed": true,
+      "sandbox_failure_kind": null,
+      "sandbox_stderr": ".......\n----------------------------------------------------------------------\nRan 7 tests in 0.000s\n\nOK\n"
+    },
+    {
+      "tier": "medium",
+      "prompt": "Write a Python function using a decorator that logs function arguments and return values.",
+      "code_length": 447,
+      "test_length": 556,
+      "code_duration_ms": 22437.359855997784,
+      "sandbox_passed": false,
+      "sandbox_failure_kind": "test_failed",
+      "sandbox_stderr": "EE\n======================================================================\nERROR: test_add_function (__main__.TestFunctionCalls.test_add_function)\n------------------------------------------------------"
+    },
+    {
+      "tier": "medium",
+      "prompt": "Write a Python context manager that measures execution time of a code block.",
+      "code_length": 404,
+      "test_length": 309,
+      "code_duration_ms": 18443.515874001605,
+      "sandbox_passed": true,
+      "sandbox_failure_kind": null,
+      "sandbox_stderr": ".\n----------------------------------------------------------------------\nRan 1 test in 1.000s\n\nOK\n"
+    },
+    {
+      "tier": "medium",
+      "prompt": "Write a Python function that finds all prime numbers up to N using the Sieve of Eratosthenes.",
+      "code_length": 310,
+      "test_length": 812,
+      "code_duration_ms": 19435.779788997024,
+      "sandbox_passed": true,
+      "sandbox_failure_kind": null,
+      "sandbox_stderr": ".\n----------------------------------------------------------------------\nRan 1 test in 0.000s\n\nOK\n"
+    },
+    {
+      "tier": "medium",
+      "prompt": "Write a Python function that serializes a dictionary to JSON and writes it to a file.",
+      "code_length": 124,
+      "test_length": 463,
+      "code_duration_ms": 6858.06778800179,
+      "sandbox_passed": false,
+      "sandbox_failure_kind": "test_failed",
+      "sandbox_stderr": "E\n======================================================================\nERROR: test_serialize_dict_to_json (__main__.TestSerializeDictToJson.test_serialize_dict_to_json)\n-----------------------------"
+    },
+    {
+      "tier": "medium",
+      "prompt": "Write a Python generator function that yields Fibonacci numbers indefinitely.",
+      "code_length": 88,
+      "test_length": 817,
+      "code_duration_ms": 7098.60019399639,
+      "sandbox_passed": true,
+      "sandbox_failure_kind": null,
+      "sandbox_stderr": "..\n----------------------------------------------------------------------\nRan 2 tests in 0.000s\n\nOK\n"
+    },
+    {
+      "tier": "hard",
+      "prompt": "Write a Python function that implements a simple LRU cache with configurable capacity.",
+      "code_length": 580,
+      "test_length": 1493,
+      "code_duration_ms": 24329.166771996825,
+      "sandbox_passed": true,
+      "sandbox_failure_kind": null,
+      "sandbox_stderr": "..\n----------------------------------------------------------------------\nRan 2 tests in 0.001s\n\nOK\n"
+    },
+    {
+      "tier": "hard",
+      "prompt": "Write a Python class that implements a thread-safe singleton pattern with lazy initialization.",
+      "code_length": 311,
+      "test_length": 993,
+      "code_duration_ms": 13363.373209998826,
+      "sandbox_passed": true,
+      "sandbox_failure_kind": null,
+      "sandbox_stderr": "..\n----------------------------------------------------------------------\nRan 2 tests in 0.002s\n\nOK\n"
+    },
+    {
+      "tier": "hard",
+      "prompt": "Write a Python function that parses a CSV string and returns a list of dicts with proper type inference.",
+      "code_length": 185,
+      "test_length": 1313,
+      "code_duration_ms": 9554.204072002904,
+      "sandbox_passed": false,
+      "sandbox_failure_kind": "test_failed",
+      "sandbox_stderr": "<string>:26: SyntaxWarning: \"\\A\" is an invalid escape sequence. Such sequences will not work in the future. Did you mean \"\\\\A\"? A raw string is also an option.\n.F.F.\n=================================="
+    },
+    {
+      "tier": "hard",
+      "prompt": "Write a Python function that builds a binary search tree with insert, search, and in-order traversal.",
+      "code_length": 1323,
+      "test_length": 1734,
+      "code_duration_ms": 67854.8411169977,
+      "sandbox_passed": false,
+      "sandbox_failure_kind": "test_failed",
+      "sandbox_stderr": "  File \"<string>\", line 49\n    ```python\n    ^\nSyntaxError: invalid syntax\n"
+    },
+    {
+      "tier": "hard",
+      "prompt": "Write a Python function that implements the Levenshtein distance algorithm between two strings.",
+      "code_length": 576,
+      "test_length": 1511,
+      "code_duration_ms": 39047.26480800309,
+      "sandbox_passed": true,
+      "sandbox_failure_kind": null,
+      "sandbox_stderr": ".......\n----------------------------------------------------------------------\nRan 7 tests in 0.000s\n\nOK\n"
+    },
+    {
+      "tier": "hard",
+      "prompt": "Write a Python function that performs topological sort on a directed acyclic graph represented as an adjacency dict.",
+      "code_length": 498,
+      "test_length": 1227,
+      "code_duration_ms": 27158.18284999841,
+      "sandbox_passed": false,
+      "sandbox_failure_kind": "test_failed",
+      "sandbox_stderr": "..F\n======================================================================\nFAIL: test_topological_sort_with_cycle (__main__.TestTopologicalSort.test_topological_sort_with_cycle)\n----------------------"
+    }
+  ],
+  "summary": {
+    "quant": "Q5_K_M",
+    "tiers": {
+      "easy": {
+        "total": 7,
+        "passed": 7,
+        "pass_rate": 100.0,
+        "avg_code_duration_ms": 5100.0
+      },
+      "medium": {
+        "total": 7,
+        "passed": 5,
+        "pass_rate": 71.4,
+        "avg_code_duration_ms": 17340.0
+      },
+      "hard": {
+        "total": 6,
+        "passed": 3,
+        "pass_rate": 50.0,
+        "avg_code_duration_ms": 30218.0
+      }
+    },
+    "overall": {
+      "total": 20,
+      "passed": 15,
+      "pass_rate": 75.0
+    }
+  }
+}

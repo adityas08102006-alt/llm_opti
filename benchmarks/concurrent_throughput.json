@@ -1,0 +1,579 @@
+{
+  "test": "Concurrent Throughput",
+  "prompt": "Write a Python function to calculate fibonacci numbers.",
+  "results": [
+    {
+      "concurrency": 1,
+      "total_requests": 1,
+      "total_elapsed_s": 14.26,
+      "throughput_req_per_s": 0.07,
+      "p50_ms": 14257.0,
+      "p95_ms": 0,
+      "min_ms": 14257.0,
+      "max_ms": 14257.0,
+      "verified_count": 0,
+      "error_count": 0,
+      "results": [
+        {
+          "idx": 0,
+          "status": 200,
+          "duration_ms": 14256.802730000345,
+          "duration_s": 14.26,
+          "verified": false,
+          "subtask_count": 1,
+          "error": null
+        }
+      ]
+    },
+    {
+      "concurrency": 1,
+      "total_requests": 1,
+      "total_elapsed_s": 32.54,
+      "throughput_req_per_s": 0.03,
+      "p50_ms": 32539.0,
+      "p95_ms": 0,
+      "min_ms": 32539.0,
+      "max_ms": 32539.0,
+      "verified_count": 0,
+      "error_count": 0,
+      "results": [
+        {
+          "idx": 0,
+          "status": 200,
+          "duration_ms": 32538.563840003917,
+          "duration_s": 32.54,
+          "verified": false,
+          "subtask_count": 1,
+          "error": null
+        }
+      ]
+    },
+    {
+      "concurrency": 1,
+      "total_requests": 1,
+      "total_elapsed_s": 14.29,
+      "throughput_req_per_s": 0.07,
+      "p50_ms": 14288.0,
+      "p95_ms": 0,
+      "min_ms": 14288.0,
+      "max_ms": 14288.0,
+      "verified_count": 0,
+      "error_count": 0,
+      "results": [
+        {
+          "idx": 0,
+          "status": 200,
+          "duration_ms": 14288.45381100109,
+          "duration_s": 14.29,
+          "verified": false,
+          "subtask_count": 1,
+          "error": null
+        }
+      ]
+    },
+    {
+      "concurrency": 2,
+      "total_requests": 2,
+      "total_elapsed_s": 45.39,
+      "throughput_req_per_s": 0.04,
+      "p50_ms": 35678.0,
+      "p95_ms": 25970.0,
+      "min_ms": 25970.0,
+      "max_ms": 45386.0,
+      "verified_count": 0,
+      "error_count": 0,
+      "results": [
+        {
+          "idx": 0,
+          "status": 200,
+          "duration_ms": 25970.037493003474,
+          "duration_s": 25.97,
+          "verified": false,
+          "subtask_count": 1,
+          "error": null
+        },
+        {
+          "idx": 1,
+          "status": 200,
+          "duration_ms": 45385.54947300145,
+          "duration_s": 45.39,
+          "verified": false,
+          "subtask_count": 1,
+          "error": null
+        }
+      ]
+    },
+    {
+      "concurrency": 2,
+      "total_requests": 2,
+      "total_elapsed_s": 61.07,
+      "throughput_req_per_s": 0.03,
+      "p50_ms": 61074.0,
+      "p95_ms": 61074.0,
+      "min_ms": 61074.0,
+      "max_ms": 61074.0,
+      "verified_count": 0,
+      "error_count": 0,
+      "results": [
+        {
+          "idx": 0,
+          "status": 200,
+          "duration_ms": 61074.33241800027,
+          "duration_s": 61.07,
+          "verified": false,
+          "subtask_count": 1,
+          "error": null
+        },
+        {
+          "idx": 1,
+          "status": 200,
+          "duration_ms": 61073.93605600373,
+          "duration_s": 61.07,
+          "verified": false,
+          "subtask_count": 1,
+          "error": null
+        }
+      ]
+    },
+    {
+      "concurrency": 2,
+      "total_requests": 2,
+      "total_elapsed_s": 37.13,
+      "throughput_req_per_s": 0.05,
+      "p50_ms": 29056.0,
+      "p95_ms": 20984.0,
+      "min_ms": 20984.0,
+      "max_ms": 37127.0,
+      "verified_count": 0,
+      "error_count": 0,
+      "results": [
+        {
+          "idx": 0,
+          "status": 200,
+          "duration_ms": 20984.195144003024,
+          "duration_s": 20.98,
+          "verified": false,
+          "subtask_count": 1,
+          "error": null
+        },
+        {
+          "idx": 1,
+          "status": 200,
+          "duration_ms": 37126.92466199951,
+          "duration_s": 37.13,
+          "verified": false,
+          "subtask_count": 1,
+          "error": null
+        }
+      ]
+    },
+    {
+      "concurrency": 4,
+      "total_requests": 4,
+      "total_elapsed_s": 59.98,
+      "throughput_req_per_s": 0.07,
+      "p50_ms": 59980.0,
+      "p95_ms": 59980.0,
+      "min_ms": 59979.0,
+      "max_ms": 59980.0,
+      "verified_count": 0,
+      "error_count": 0,
+      "results": [
+        {
+          "idx": 0,
+          "status": 200,
+          "duration_ms": 59979.890388996864,
+          "duration_s": 59.98,
+          "verified": false,
+          "subtask_count": 1,
+          "error": null
+        },
+        {
+          "idx": 1,
+          "status": 200,
+          "duration_ms": 59979.65015999944,
+          "duration_s": 59.98,
+          "verified": false,
+          "subtask_count": 1,
+          "error": null
+        },
+        {
+          "idx": 2,
+          "status": 200,
+          "duration_ms": 59979.41211699799,
+          "duration_s": 59.98,
+          "verified": false,
+          "subtask_count": 1,
+          "error": null
+        },
+        {
+          "idx": 3,
+          "status": 200,
+          "duration_ms": 59978.849739003635,
+          "duration_s": 59.98,
+          "verified": false,
+          "subtask_count": 1,
+          "error": null
+        }
+      ]
+    },
+    {
+      "concurrency": 4,
+      "total_requests": 4,
+      "total_elapsed_s": 59.41,
+      "throughput_req_per_s": 0.07,
+      "p50_ms": 56112.0,
+      "p95_ms": 59411.0,
+      "min_ms": 49852.0,
+      "max_ms": 59413.0,
+      "verified_count": 0,
+      "error_count": 0,
+      "results": [
+        {
+          "idx": 0,
+          "status": 200,
+          "duration_ms": 59412.56417000113,
+          "duration_s": 59.41,
+          "verified": false,
+          "subtask_count": 1,
+          "error": null
+        },
+        {
+          "idx": 1,
+          "status": 200,
+          "duration_ms": 52813.3382869928,
+          "duration_s": 52.81,
+          "verified": false,
+          "subtask_count": 1,
+          "error": null
+        },
+        {
+          "idx": 2,
+          "status": 200,
+          "duration_ms": 49852.40775200509,
+          "duration_s": 49.85,
+          "verified": false,
+          "subtask_count": 1,
+          "error": null
+        },
+        {
+          "idx": 3,
+          "status": 200,
+          "duration_ms": 59411.48730600253,
+          "duration_s": 59.41,
+          "verified": false,
+          "subtask_count": 1,
+          "error": null
+        }
+      ]
+    },
+    {
+      "concurrency": 4,
+      "total_requests": 4,
+      "total_elapsed_s": 79.74,
+      "throughput_req_per_s": 0.05,
+      "p50_ms": 79734.0,
+      "p95_ms": 79734.0,
+      "min_ms": 22354.0,
+      "max_ms": 79735.0,
+      "verified_count": 0,
+      "error_count": 0,
+      "results": [
+        {
+          "idx": 0,
+          "status": 200,
+          "duration_ms": 79735.14712599717,
+          "duration_s": 79.74,
+          "verified": false,
+          "subtask_count": 1,
+          "error": null
+        },
+        {
+          "idx": 1,
+          "status": 200,
+          "duration_ms": 79734.08594500506,
+          "duration_s": 79.73,
+          "verified": false,
+          "subtask_count": 1,
+          "error": null
+        },
+        {
+          "idx": 2,
+          "status": 200,
+          "duration_ms": 79733.68330900121,
+          "duration_s": 79.73,
+          "verified": false,
+          "subtask_count": 1,
+          "error": null
+        },
+        {
+          "idx": 3,
+          "status": 200,
+          "duration_ms": 22353.635587998724,
+          "duration_s": 22.35,
+          "verified": false,
+          "subtask_count": 1,
+          "error": null
+        }
+      ]
+    },
+    {
+      "concurrency": 8,
+      "total_requests": 8,
+      "total_elapsed_s": 120.08,
+      "throughput_req_per_s": 0.07,
+      "p50_ms": 120068.0,
+      "p95_ms": 120071.0,
+      "min_ms": 55006.0,
+      "max_ms": 120075.0,
+      "verified_count": 0,
+      "error_count": 0,
+      "results": [
+        {
+          "idx": 0,
+          "status": 500,
+          "duration_ms": 120075.41011899593,
+          "duration_s": 120.08,
+          "verified": false,
+          "subtask_count": 0,
+          "error": null
+        },
+        {
+          "idx": 1,
+          "status": 500,
+          "duration_ms": 120063.90114100213,
+          "duration_s": 120.06,
+          "verified": false,
+          "subtask_count": 0,
+          "error": null
+        },
+        {
+          "idx": 2,
+          "status": 500,
+          "duration_ms": 120067.30917100504,
+          "duration_s": 120.07,
+          "verified": false,
+          "subtask_count": 0,
+          "error": null
+        },
+        {
+          "idx": 3,
+          "status": 200,
+          "duration_ms": 55005.612457003735,
+          "duration_s": 55.01,
+          "verified": false,
+          "subtask_count": 1,
+          "error": null
+        },
+        {
+          "idx": 4,
+          "status": 500,
+          "duration_ms": 120066.85060200107,
+          "duration_s": 120.07,
+          "verified": false,
+          "subtask_count": 0,
+          "error": null
+        },
+        {
+          "idx": 5,
+          "status": 500,
+          "duration_ms": 120067.81358000444,
+          "duration_s": 120.07,
+          "verified": false,
+          "subtask_count": 0,
+          "error": null
+        },
+        {
+          "idx": 6,
+          "status": 500,
+          "duration_ms": 120069.6876889997,
+          "duration_s": 120.07,
+          "verified": false,
+          "subtask_count": 0,
+          "error": null
+        },
+        {
+          "idx": 7,
+          "status": 500,
+          "duration_ms": 120070.89704799728,
+          "duration_s": 120.07,
+          "verified": false,
+          "subtask_count": 0,
+          "error": null
+        }
+      ]
+    },
+    {
+      "concurrency": 8,
+      "total_requests": 8,
+      "total_elapsed_s": 120.07,
+      "throughput_req_per_s": 0.07,
+      "p50_ms": 120065.0,
+      "p95_ms": 120072.0,
+      "min_ms": 47728.0,
+      "max_ms": 120073.0,
+      "verified_count": 0,
+      "error_count": 0,
+      "results": [
+        {
+          "idx": 0,
+          "status": 500,
+          "duration_ms": 120071.5629549959,
+          "duration_s": 120.07,
+          "verified": false,
+          "subtask_count": 0,
+          "error": null
+        },
+        {
+          "idx": 1,
+          "status": 500,
+          "duration_ms": 120060.83039999794,
+          "duration_s": 120.06,
+          "verified": false,
+          "subtask_count": 0,
+          "error": null
+        },
+        {
+          "idx": 2,
+          "status": 500,
+          "duration_ms": 120063.040352994,
+          "duration_s": 120.06,
+          "verified": false,
+          "subtask_count": 0,
+          "error": null
+        },
+        {
+          "idx": 3,
+          "status": 500,
+          "duration_ms": 120072.78371800203,
+          "duration_s": 120.07,
+          "verified": false,
+          "subtask_count": 0,
+          "error": null
+        },
+        {
+          "idx": 4,
+          "status": 500,
+          "duration_ms": 120064.10175199562,
+          "duration_s": 120.06,
+          "verified": false,
+          "subtask_count": 0,
+          "error": null
+        },
+        {
+          "idx": 5,
+          "status": 500,
+          "duration_ms": 120066.50280900067,
+          "duration_s": 120.07,
+          "verified": false,
+          "subtask_count": 0,
+          "error": null
+        },
+        {
+          "idx": 6,
+          "status": 200,
+          "duration_ms": 47727.56845900585,
+          "duration_s": 47.73,
+          "verified": false,
+          "subtask_count": 1,
+          "error": null
+        },
+        {
+          "idx": 7,
+          "status": 500,
+          "duration_ms": 120069.07911600138,
+          "duration_s": 120.07,
+          "verified": false,
+          "subtask_count": 0,
+          "error": null
+        }
+      ]
+    },
+    {
+      "concurrency": 8,
+      "total_requests": 8,
+      "total_elapsed_s": 112.79,
+      "throughput_req_per_s": 0.07,
+      "p50_ms": 112789.0,
+      "p95_ms": 112790.0,
+      "min_ms": 81414.0,
+      "max_ms": 112791.0,
+      "verified_count": 0,
+      "error_count": 0,
+      "results": [
+        {
+          "idx": 0,
+          "status": 200,
+          "duration_ms": 97950.97835100023,
+          "duration_s": 97.95,
+          "verified": false,
+          "subtask_count": 1,
+          "error": null
+        },
+        {
+          "idx": 1,
+          "status": 200,
+          "duration_ms": 112788.40895699977,
+          "duration_s": 112.79,
+          "verified": false,
+          "subtask_count": 1,
+          "error": null
+        },
+        {
+          "idx": 2,
+          "status": 200,
+          "duration_ms": 112789.48816299817,
+          "duration_s": 112.79,
+          "verified": false,
+          "subtask_count": 1,
+          "error": null
+        },
+        {
+          "idx": 3,
+          "status": 200,
+          "duration_ms": 81413.59638399445,
+          "duration_s": 81.41,
+          "verified": false,
+          "subtask_count": 1,
+          "error": null
+        },
+        {
+          "idx": 4,
+          "status": 200,
+          "duration_ms": 112790.50813400681,
+          "duration_s": 112.79,
+          "verified": false,
+          "subtask_count": 1,
+          "error": null
+        },
+        {
+          "idx": 5,
+          "status": 200,
+          "duration_ms": 112789.1665520001,
+          "duration_s": 112.79,
+          "verified": false,
+          "subtask_count": 1,
+          "error": null
+        },
+        {
+          "idx": 6,
+          "status": 200,
+          "duration_ms": 112790.46957699757,
+          "duration_s": 112.79,
+          "verified": false,
+          "subtask_count": 1,
+          "error": null
+        },
+        {
+          "idx": 7,
+          "status": 200,
+          "duration_ms": 112789.15697600314,
+          "duration_s": 112.79,
+          "verified": false,
+          "subtask_count": 1,
+          "error": null
+        }
+      ]
+    }
+  ]
+}
