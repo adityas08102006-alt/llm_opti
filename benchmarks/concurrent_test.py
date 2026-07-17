@@ -46,6 +46,10 @@ async def run_concurrency_test(n: int) -> dict:
     durations = [r["duration_ms"] for r in results if r["error"] is None]
     all_durations = [r["duration_ms"] for r in results]
 
+    # Detect serialization: if max ≈ sum of all individual durations, requests are serialized
+    total_individual = sum(durations) if durations else 0
+    serialization_ratio = round(total_individual / max(total_elapsed * 1000, 1), 2)
+
     return {
         "concurrency": n,
         "total_requests": n,
@@ -57,6 +61,7 @@ async def run_concurrency_test(n: int) -> dict:
         "max_ms": round(max(all_durations), 0) if all_durations else 0,
         "verified_count": sum(1 for r in results if r["verified"]),
         "error_count": sum(1 for r in results if r["error"]),
+        "serialization_ratio": serialization_ratio,
         "results": results,
     }
 
@@ -81,8 +86,8 @@ async def main():
         by_level[n].append(r)
 
     print("\n=== Summary ===")
-    print(f"{'N':>4} | {'Throughput':>10} | {'p50(ms)':>8} | {'p95(ms)':>8} | {'Min(ms)':>8} | {'Max(ms)':>8} | {'Verified':>8}")
-    print("-" * 75)
+    print(f"{'N':>4} | {'Throughput':>10} | {'p50(ms)':>8} | {'p95(ms)':>8} | {'Min(ms)':>8} | {'Max(ms)':>8} | {'SerRatio':>8} | {'Verified':>8}")
+    print("-" * 85)
     for n in CONCURRENCY_LEVELS:
         rows = by_level.get(n, [])
         if not rows:
@@ -92,8 +97,12 @@ async def main():
         avg_p95 = statistics.mean(r["p95_ms"] for r in rows)
         avg_min = statistics.mean(r["min_ms"] for r in rows)
         avg_max = statistics.mean(r["max_ms"] for r in rows)
+        avg_ser = statistics.mean(r["serialization_ratio"] for r in rows)
         avg_ver = statistics.mean(r["verified_count"] for r in rows)
-        print(f"{n:>4} | {avg_tp:>8.2f} req/s | {avg_p50:>8.0f} | {avg_p95:>8.0f} | {avg_min:>8.0f} | {avg_max:>8.0f} | {avg_ver:>8.1f}")
+        print(f"{n:>4} | {avg_tp:>8.2f} req/s | {avg_p50:>8.0f} | {avg_p95:>8.0f} | {avg_min:>8.0f} | {avg_max:>8.0f} | {avg_ser:>8.1f}x | {avg_ver:>8.1f}")
+    print("\n  Serialization Ratio = sum(individual durations) / wall-clock overlap")
+    print("  Ratio ≈ 1.0 → fully serialized (bottleneck at API worker)")
+    print("  Ratio ≈ N   → fully parallel (linear scaling)")
 
     output = {"test": "Concurrent Throughput", "prompt": TEST_PROMPT, "results": all_results}
     out_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "concurrent_throughput.json")

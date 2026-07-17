@@ -4,7 +4,7 @@ from collections import deque
 
 class MetricsCollector:
     def __init__(self):
-        self.llama_ports = [8001, 8002, 8003]
+        self.llama_ports = [8001, 8002]
         self.history = deque(maxlen=300)
 
     async def scrape_all(self) -> dict:

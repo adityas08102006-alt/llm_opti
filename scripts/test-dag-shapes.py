@@ -21,6 +21,36 @@ for t in tests:
     print(f"  shape={shape:35s} nodes={names}")
 
 print()
-# Verify no dead code paths
-print("DAG_SHAPES removed: PASS" if True else "FAIL")
-print("classify_dag_shape returns meaningful: PASS" if all(s not in ("A","B","C") for s in [classify_dag_shape(t) for t in tests]) else "FAIL")
+# Verify all shapes return valid identifiers
+shapes_found = set()
+for t in tests:
+    s = classify_dag_shape(t)
+    shapes_found.add(s)
+    dag = build_dag(t, s)
+    assert len(dag) >= 1, f"Empty DAG for {t!r}"
+    assert all(n["depends_on"] is not None for n in dag), f"None deps in DAG for {t!r}"
+print(f"  Shapes found: {shapes_found}")
+# All shapes must be A, B, or C
+valid = shapes_found.issubset({"A", "B", "C"})
+print(f"DAG shapes use A/B/C classification: {'PASS' if valid else 'FAIL'}")
+# Test Shape C (linear chain)
+seq_shape = classify_dag_shape("Write a sequential function with tests")
+assert seq_shape == "C", f"Expected C got {seq_shape}"
+seq_dag = build_dag("Write a sequential function with tests", seq_shape)
+first = True
+chain_ok = True
+for n in seq_dag:
+    if first:
+        chain_ok = chain_ok and (n["depends_on"] == [])
+        first = False
+    else:
+        expected = [n["id"] - 1]
+        chain_ok = chain_ok and (n["depends_on"] == expected)
+print(f"Linear chain (Shape C) topology: {'PASS' if chain_ok else 'FAIL'}")
+# Test Shape A (fan-out) — code + docs with no test keywords have no deps
+a_dag = build_dag("Write an API endpoint with documentation", "A")
+fan_ok = all(n["depends_on"] == [] for n in a_dag)
+if not fan_ok:
+    for n in a_dag:
+        print(f"    FAIL: id={n['id']} name={n['name']} depends_on={n['depends_on']}")
+print(f"Fan-out (Shape A) topology: {'PASS' if fan_ok else 'FAIL'}")

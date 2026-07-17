@@ -1,40 +1,57 @@
 #!/bin/bash
-set -e
+# shellcheck disable=SC2312
 echo "=== Arm Architecture Verification ==="
 
 FEATURES=$(grep -m1 'Features' /proc/cpuinfo)
-echo -n "NEON:       "; echo "$FEATURES" | grep -q 'asimd' && echo "YES" || echo "NO"
-echo -n "DOTPROD:    "; echo "$FEATURES" | grep -q 'asimddp' && echo "YES" || echo "NO"
-echo -n "I8MM:       "; echo "$FEATURES" | grep -q 'i8mm' && echo "YES" || echo "NO"
-echo -n "SVE:        "; echo "$FEATURES" | grep -q 'sve' && echo "YES" || echo "NO"
+HAVE_NEON=false; HAVE_DOTPROD=false; HAVE_I8MM=false; HAVE_SVE=false
+echo "$FEATURES" | grep -q 'asimd'   && HAVE_NEON=true   && echo "NEON:       YES" || echo "NEON:       NO"
+echo "$FEATURES" | grep -q 'asimddp' && HAVE_DOTPROD=true && echo "DOTPROD:    YES" || echo "DOTPROD:    NO"
+echo "$FEATURES" | grep -q 'i8mm'    && HAVE_I8MM=true    && echo "I8MM:       YES" || echo "I8MM:       NO"
+echo "$FEATURES" | grep -q 'sve'     && HAVE_SVE=true     && echo "SVE:        YES" || echo "SVE:        NO"
 
 echo ""
 
 # KleidiAI build
 BUILD_DIR="$HOME/llama.cpp/build-arm-optimized"
-echo -n "KleidiAI build: "
+HAVE_KLEIDIAI=false
 if grep -q 'GGML_CPU_KLEIDIAI:BOOL=ON' "$BUILD_DIR/CMakeCache.txt" 2>/dev/null; then
-    echo "YES (CMakeCache.txt)"
+    HAVE_KLEIDIAI=true
+    echo "KleidiAI build: YES (CMakeCache.txt)"
 else
-    echo "NO"
+    echo "KleidiAI build: NO"
 fi
 
-echo -n "ARM_ARCH: "
-grep 'GGML_CPU_ARM_ARCH' "$BUILD_DIR/CMakeCache.txt" 2>/dev/null | head -1 || echo "(unknown)"
+ARM_ARCH=$(grep 'GGML_CPU_ARM_ARCH' "$BUILD_DIR/CMakeCache.txt" 2>/dev/null | head -1 || echo "GGML_CPU_ARM_ARCH:STRING=(unknown)")
+echo "ARM_ARCH: $ARM_ARCH"
 
 echo ""
 
 # Runtime symbols
-echo -n "KleidiAI symbols: "
+HAVE_SYMBOLS=false
 if strings "$BUILD_DIR/bin/libggml-cpu.so" 2>/dev/null | grep -q 'kleidiai'; then
-    echo "YES (libggml-cpu.so)"
+    HAVE_SYMBOLS=true
+    echo "KleidiAI symbols: YES (libggml-cpu.so)"
     echo -n "  dotprod kernels: "
     strings "$BUILD_DIR/bin/libggml-cpu.so" | grep -c 'neon_dotprod' || echo "0"
     echo -n "  i8mm kernels:    "
     strings "$BUILD_DIR/bin/libggml-cpu.so" | grep -c 'neon_i8mm' || echo "0"
 else
-    echo "NO"
+    echo "KleidiAI symbols: NO"
 fi
 
 echo ""
-echo "=== Result: ALL CHECKS PASS ==="
+
+# Computed result
+FAILURES=""
+$HAVE_NEON     || FAILURES="${FAILURES}NEON "
+$HAVE_DOTPROD  || FAILURES="${FAILURES}DOTPROD "
+$HAVE_I8MM     || FAILURES="${FAILURES}I8MM "
+$HAVE_KLEIDIAI || FAILURES="${FAILURES}KLEIDIAI_BUILD "
+$HAVE_SYMBOLS  || FAILURES="${FAILURES}KLEIDIAI_SYMBOLS "
+
+if [ -z "$FAILURES" ]; then
+    echo "=== Result: ALL CHECKS PASS ==="
+else
+    echo "=== Result: FAILED — ${FAILURES}==="
+    exit 1
+fi

@@ -31,7 +31,7 @@ download:
 start:
 	cd $(HOME)/parallel-task-engine && bash scripts/start-servers.sh
 	source $(HOME)/venv/bin/activate && cd $(HOME)/parallel-task-engine && \
-		nohup uvicorn backend.main:app --host 0.0.0.0 --port 9000 > logs/api.log 2>&1 &
+		nohup uvicorn backend.main:app --host 0.0.0.0 --port 9000 --workers 4 > logs/api.log 2>&1 &
 
 stop:
 	pkill -f "llama-server.*port 8001" 2>/dev/null || true

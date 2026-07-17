@@ -16,20 +16,29 @@ export default function DashboardPage() {
   const [result, setResult] = useState<GenerateResponse | null>(null)
   const [error, setError] = useState('')
 
+  const [processing, setProcessing] = useState(false)
+  const [startTime, setStartTime] = useState(0)
+
   const handleSubmit = async () => {
     if (!prompt.trim()) return
     setLoading(true)
+    setProcessing(true)
     setError('')
     setResult(null)
+    setStartTime(Date.now())
     try {
       const res = await api.generate(prompt)
       setResult(res)
     } catch (e) {
-      setError((e as Error).message)
+      const msg = (e as Error).message
+      setError(msg.includes('504') ? 'Request timed out. Try again or use a simpler prompt.' : msg)
     } finally {
       setLoading(false)
+      setProcessing(false)
     }
   }
+
+  const elapsed = processing ? Math.floor((Date.now() - startTime) / 1000) : 0
 
   return (
     <div className="space-y-6">
@@ -68,9 +77,10 @@ export default function DashboardPage() {
             disabled={loading || !prompt.trim()}
             className="bg-accent-500 hover:bg-accent-600 disabled:bg-surface-700 disabled:text-surface-500 text-white px-5 py-2 rounded text-sm font-medium transition-colors"
           >
-            {loading ? 'Executing…' : 'Execute'}
+            {loading ? `Processing… (${elapsed}s)` : 'Execute'}
           </button>
           {loading && <Spinner />}
+          {processing && !error && <span className="text-accent-400 text-sm">Waiting for LLM servers…</span>}
           {error && <span className="text-danger text-sm">{error}</span>}
         </div>
       </div>

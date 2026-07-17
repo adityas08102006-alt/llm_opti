@@ -99,15 +99,39 @@ export interface GenerateResponse {
   cached?: boolean
 }
 
+export interface TaskResponse {
+  task_id: string
+  status: 'running' | 'completed' | 'failed'
+  result?: GenerateResponse
+  error?: string
+}
+
 // ---------- API methods ----------
 export const api = {
   health: () => request<HealthResponse>('/health'),
   stats: () => request<StatsResponse>('/stats'),
   armVerify: () => request<ArmVerifyResponse>('/system/arm-verify'),
   version: () => request<VersionResponse>('/version'),
-  generate: (prompt: string) =>
-    request<GenerateResponse>('/generate', {
+  generate: async (prompt: string, signal?: AbortSignal): Promise<GenerateResponse> => {
+    // Create async task
+    const task = await request<TaskResponse>('/tasks', {
       method: 'POST',
       body: JSON.stringify({ prompt, demo_mode: 'live' }),
-    }),
+    })
+    const taskId = task.task_id
+
+    // Poll until complete (Vercel proxy handles these fast polling requests easily)
+    const pollInterval = 5000 // 5 seconds
+    for (;;) {
+      const status = await request<TaskResponse>(`/tasks/${taskId}`, { signal })
+      if (status.status === 'completed' && status.result) {
+        return status.result
+      }
+      if (status.status === 'failed') {
+        throw new Error(status.error || 'Task failed')
+      }
+      await new Promise((r) => setTimeout(r, pollInterval))
+    }
+  },
+  demoMode: () => request<{ demo_mode: string }>('/demo-mode'),
 }

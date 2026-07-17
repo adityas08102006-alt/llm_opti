@@ -22,12 +22,15 @@ async def run_pipeline(prompt: str, port: int, sequential: bool) -> dict:
 
     if sequential:
         code_result = await generate(port, prompt, system=CODE_SYSTEM, n_predict=512, timeout_secs=180)
+        docs_result = await generate(8002, f"Write documentation for: {prompt}", n_predict=256, timeout_secs=180)
         test_prompt = f"Write Python unit tests using unittest for this code:\n\n{code_result['output']}"
         test_result = await generate(port, test_prompt, system=TEST_SYSTEM, n_predict=512, timeout_secs=180)
         total = (time.monotonic() - start) * 1000
         return {
             "mode": "sequential", "total_duration_ms": total,
-            "code_ms": code_result["total_duration_ms"], "test_ms": test_result["total_duration_ms"],
+            "code_ms": code_result["total_duration_ms"],
+            "docs_ms": docs_result["total_duration_ms"],
+            "test_ms": test_result["total_duration_ms"],
         }
     else:
         async def gen_code():

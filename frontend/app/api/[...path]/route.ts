@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+// Allow up to 60s for long-running requests (Pro plan). Hobby max is 10s.
+// For the generate endpoint, use POST /tasks (async) to avoid timeout.
+export const maxDuration = 60
+
 const BACKEND = 'http://3.107.210.17:9000'
 
 export async function GET(request: NextRequest) {
@@ -18,11 +22,15 @@ async function proxy(request: NextRequest) {
   headers.delete('host')
 
   try {
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 55000)
     const res = await fetch(`${BACKEND}/${pathname}${qs}`, {
       method: request.method,
       headers,
       body,
+      signal: controller.signal,
     })
+    clearTimeout(timeout)
     const data = await res.text()
     return new NextResponse(data, {
       status: res.status,

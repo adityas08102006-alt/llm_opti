@@ -1,7 +1,9 @@
 import asyncio
+import json
 import os
 import sys
 import time
+import uuid
 from collections import deque
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, Request
@@ -44,9 +46,11 @@ async def background_collector():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    task = asyncio.create_task(background_collector())
+    collector = asyncio.create_task(background_collector())
+    cleaner = asyncio.create_task(_task_cleanup())
     yield
-    task.cancel()
+    collector.cancel()
+    cleaner.cancel()
 
 
 app = FastAPI(title="Parallel Task Decomposition Engine", version="2.0.0", lifespan=lifespan)
@@ -158,11 +162,54 @@ def get_stats():
     }
 
 
+@app.get("/demo-mode")
+def get_demo_mode():
+    return {"demo_mode": os.environ.get("DEMO_MODE", "live")}
+
+
+# ---------- async task store (file-based, shared across uvicorn workers) ----------
+_TASK_DIR = "/tmp/llm-tasks"
+os.makedirs(_TASK_DIR, exist_ok=True)
+
+
+def _task_path(task_id: str) -> str:
+    return os.path.join(_TASK_DIR, f"{task_id}.json")
+
+
+def _write_task(task_id: str, data: dict):
+    tmp = _task_path(task_id) + ".tmp"
+    with open(tmp, "w") as f:
+        json.dump(data, f)
+    os.replace(tmp, _task_path(task_id))
+
+
+def _read_task(task_id: str) -> dict | None:
+    path = _task_path(task_id)
+    if not os.path.exists(path):
+        return None
+    with open(path) as f:
+        return json.load(f)
+
+
+async def _task_cleanup():
+    """Remove tasks older than 30 minutes every 5 minutes."""
+    while True:
+        try:
+            now = time.time()
+            for fname in os.listdir(_TASK_DIR):
+                fpath = os.path.join(_TASK_DIR, fname)
+                if fname.endswith(".json") and now - os.path.getmtime(fpath) > 1800:
+                    os.remove(fpath)
+        except OSError:
+            pass
+        await asyncio.sleep(300)
+
+
 @app.post("/generate")
 async def generate(request: PromptRequest):
     try:
         start = time.monotonic()
-        result = await orchestrator.execute(request.prompt)
+        result = await orchestrator.execute(request.prompt, demo_mode=request.demo_mode)
         elapsed = (time.monotonic() - start) * 1000
         stats.last_generate_duration = elapsed
         stats.total_requests += 1
@@ -175,3 +222,42 @@ async def generate(request: PromptRequest):
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/tasks")
+async def create_task(request: PromptRequest):
+    task_id = uuid.uuid4().hex[:12]
+    _write_task(task_id, {"status": "running", "result": None, "created_at": time.time(), "prompt": request.prompt, "demo_mode": request.demo_mode})
+
+    async def _run():
+        try:
+            entry = _read_task(task_id)
+            result = await orchestrator.execute(request.prompt, demo_mode=request.demo_mode)
+            _write_task(task_id, {"status": "completed", "result": result, "created_at": entry["created_at"]})
+        except Exception as e:
+            entry = _read_task(task_id)
+            _write_task(task_id, {"status": "failed", "error": str(e), "created_at": entry["created_at"] if entry else 0})
+
+    asyncio.create_task(_run())
+    return {"task_id": task_id, "status": "running"}
+
+
+@app.get("/tasks/{task_id}")
+async def get_task(task_id: str):
+    entry = _read_task(task_id)
+    if entry is None:
+        raise HTTPException(status_code=404, detail="Task not found")
+    if entry["status"] == "completed":
+        result = entry.get("result")
+        if result:
+            stats.total_requests += 1
+            sb = result.get("sandbox")
+            if sb:
+                if sb.get("passed"):
+                    stats.sandbox_passes += 1
+                else:
+                    stats.sandbox_fails += 1
+        return {"status": "completed", "result": result}
+    if entry["status"] == "failed":
+        return {"status": "failed", "error": entry.get("error", "Unknown error")}
+    return {"status": "running"}
